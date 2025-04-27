@@ -1,3 +1,5 @@
 /.venv
 /data
 /kagglehub_cache
+
+*.pkl
