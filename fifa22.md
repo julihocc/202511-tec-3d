@@ -5,19 +5,42 @@
 Este análisis tiene como objetivo explorar el conjunto de datos de FIFA22, 
 centrándose en variables clave como el potencial, salario, reputación, valor de mercado y estatura de los jugadores.
 
-```python
+
 # 2. Carga y exploración inicial de datos
 
+
+```python
 # 2.1 Importación de librerías
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import kagglehub
+import os
 ```
 
 ```python
 # 2.2 Carga del dataset
-df = pd.read_csv('ruta/a/tu/archivo.csv')
+
+current_folder = os.getcwd()
+
+pickle_dir = os.path.join(current_folder, "data")
+if not os.path.exists(pickle_dir):
+    os.makedirs(pickle_dir)
+pickle_file = os.path.join(pickle_dir, "players_22.pkl")
+
+if os.path.exists(pickle_file):
+    print(f"The pickle file already exists at: {pickle_file}")
+else:
+    os.environ["KAGGLEHUB_CACHE"] = current_folder + "/kagglehub_cache"
+    path = kagglehub.dataset_download(
+        "stefanoleone992/fifa-22-complete-player-dataset"
+    )
+    print("Downloaded path: ", path)
+    output_file = os.path.join(path, "players_22.csv")
+    pd.read_csv(output_file).to_pickle(pickle_file)
+
+df = pd.read_pickle(pickle_file)
 ```
 
 ```python
@@ -44,54 +67,58 @@ df.isnull().sum()
 
 ```python
 # Estatura de los jugadores
-sns.histplot(df['Height'], kde=True)
-plt.title('Distribución de Estatura')
+sns.histplot(df["height_cm"], kde=True)
+plt.title("Distribución de Estatura")
 plt.show()
 ```
 
 ```python
 # Peso de los jugadores
-sns.histplot(df['Weight'], kde=True)
-plt.title('Distribución de Peso')
+sns.histplot(df["weight_kg"], kde=True)
+plt.title("Distribución de Peso")
 plt.show()
 ```
 
 ```python
 # Salario de los jugadores
-sns.histplot(df['Wage'], kde=True)
-plt.title('Distribución de Salario')
+sns.histplot(df["wage_eur"], kde=True)
+plt.title("Distribución de Salario")
 plt.show()
 ```
 
 ```python
 # Edad de los jugadores
-sns.histplot(df['Age'], kde=True)
-plt.title('Distribución de Edad')
+sns.histplot(df["age"], kde=True)
+plt.title("Distribución de Edad")
 plt.show()
 ```
 
 ## 3.2 Dominancia del pie
 
 ```python
-sns.countplot(x='Preferred Foot', data=df)
-plt.title('Pie Dominante de los Jugadores')
+sns.countplot(x="preferred_foot", data=df)
+plt.title("Pie Dominante de los Jugadores")
 plt.show()
 ```
 
 ## 3.3 Representación geográfica
 
 ```python
-top_countries = df['Nationality'].value_counts().head(10)
-top_countries.plot(kind='bar')
-plt.title('Países con Mayor Representación')
+top_countries = df["nationality_name"].value_counts().head(10)
+top_countries.plot(kind="bar")
+plt.title("Países con Mayor Representación")
 plt.show()
 ```
 
 ## 3.4 Posiciones de los jugadores
 
 ```python
-sns.countplot(y='Position', data=df, order=df['Position'].value_counts().index)
-plt.title('Posiciones más Comunes')
+sns.countplot(
+    y="club_position", data=df, order=df["club_position"].value_counts().index
+)
+
+plt.title("Posiciones más Comunes")
+
 plt.show()
 ```
 
@@ -100,32 +127,32 @@ plt.show()
 ## 4.1 Potencial vs Salario
 
 ```python
-sns.scatterplot(x='Potential', y='Wage', data=df)
-plt.title('Relación entre Potencial y Salario')
+sns.scatterplot(x="potential", y="wage_eur", data=df)
+plt.title("Relación entre Potencial y Salario")
 plt.show()
 ```
 
 ## 4.2 Reputación vs Valor de mercado
 
 ```python
-sns.scatterplot(x='Reputation', y='Value', data=df)
-plt.title('Relación entre Reputación y Valor de Mercado')
+sns.scatterplot(x="international_reputation", y="value_eur", data=df)
+plt.title("Relación entre Reputación y Valor de Mercado")
 plt.show()
 ```
 
 ## 4.3 Reputación vs Salario
 
 ```python
-sns.boxplot(x='Reputation', y='Wage', data=df)
-plt.title('Relación entre Reputación y Salario')
+sns.boxplot(x="international_reputation", y="wage_eur", data=df, whis=[1,99])
+plt.title("Relación entre Reputación y Salario")
 plt.show()
 ```
 
 ## 4.4 Estatura vs Potencial
 
 ```python
-sns.scatterplot(x='Height', y='Potential', data=df)
-plt.title('Relación entre Estatura y Potencial')
+sns.scatterplot(x="height_cm", y="potential", data=df)
+plt.title("Relación entre Estatura y Potencial")
 plt.show()
 ```
 
@@ -134,19 +161,19 @@ plt.show()
 ## 5.1 Jugadores mejor remunerados
 
 ```python
-df[['Name', 'Wage']].sort_values(by='Wage', ascending=False).head(10)
+df[["short_name", "wage_eur"]].sort_values(by="wage_eur", ascending=False).head(10)
 ```
 
 ## 5.2 Jugadores con mayor potencial
 
 ```python
-df[['Name', 'Potential']].sort_values(by='Potential', ascending=False).head(10)
+df[["short_name", "potential"]].sort_values(by="potential", ascending=False).head(10)
 ```
 
 ## 5.3 Jugadores con mejor valoración general
 
 ```python
-df[['Name', 'Overall']].sort_values(by='Overall', ascending=False).head(10)
+df[["short_name", "overall"]].sort_values(by="overall", ascending=False).head(10)
 ```
 
 # 6. Conclusiones
